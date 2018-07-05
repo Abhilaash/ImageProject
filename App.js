@@ -25,7 +25,7 @@ export default class App extends React.Component {
             <View style = {{backgroundColor: 'skyblue'}}>
               <Service service = "Azure"/>
             </View>
-            <View style = {{backgroundColor: 'steelblue'}}>
+            <View style = {{backgroundColor: 'steelblue', paddingBottom: 22}}>
               <Service service = "Google Cloud" />
             </View>
           </View>
@@ -39,11 +39,5 @@ const styles = StyleSheet.create({
     flex: 2,
     paddingTop: 22,
     paddingBottom: 22,
-  },
-
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 10,
   },
 });
