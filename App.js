@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, StyleSheet, Text, TouchableOpacity, ScrollView, View } from 'react-native';
+import {FlatList, Image, StyleSheet, Text, TouchableOpacity, ScrollView, View } from 'react-native';
 import { Camera, Permissions } from 'expo';
 
 class Service extends React.Component {
@@ -12,16 +12,27 @@ class Service extends React.Component {
   }
 }
 
-export default class CameraExample extends React.Component {
-  state = {
-    hasCameraPermission: null,
-    type: Camera.Constants.Type.back,
-  };
+export default class ImageProject extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasCameraPermission: null,
+      image: "https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg"
+    };
+  }
 
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({ hasCameraPermission: status === 'granted' });
+    this.setState({ hasCameraPermission: status === 'granted'});
   }
+
+  snap = async () => {
+    if (this.camera) {
+      let photo = await this.camera.takePictureAsync();
+      this.setState({image: photo.uri})
+    }
+  };
+
   render() {
     const { hasCameraPermission } = this.state;
     if (hasCameraPermission === null) {
@@ -31,7 +42,7 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <ScrollView style={styles.container}>
-          <Camera style={{flex: 4, height: 600}} type={this.state.type}>
+          <Camera style={{flex: 4, height: 600}} type={this.state.type} ref={ref => { this.camera = ref; }} >
             <View
               style={{
                 backgroundColor: 'transparent',
@@ -43,20 +54,15 @@ export default class CameraExample extends React.Component {
                   alignSelf: 'flex-end',
                   alignItems: 'center',
                 }}
-                onPress={() => {
-                  this.setState({
-                    type: this.state.type === Camera.Constants.Type.back
-                    ? Camera.Constants.Type.front
-                    : Camera.Constants.Type.back,
-                  });
-                }}>
+                onPress={this.snap} >
                 <Text
                   style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>
-                  {' '}Flip{' '}
+                  {' '}Capture{' '}
                 </Text>
               </TouchableOpacity>
             </View>
           </Camera>
+
           <View style = {{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
             <View style = {{backgroundColor: 'powderblue'}}>
               <Service service = "AWS"  />
@@ -68,6 +74,8 @@ export default class CameraExample extends React.Component {
               <Service service = "Google Cloud" />
             </View>
           </View>
+
+          <Image source={{uri: this.state.image}} style={{width: 193, height: 110}}/>
         </ScrollView>
       );
     }
