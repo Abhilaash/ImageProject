@@ -1,12 +1,13 @@
 import React from 'react';
 import {FlatList, Image, StyleSheet, Text, TouchableOpacity, ScrollView, View } from 'react-native';
 import { Camera, Permissions } from 'expo';
+import {awsAnalysisAsync} from './src/AWS'
 
 class Service extends React.Component {
   render() {
     return (
       <Text style={{textAlign: 'center'}}>
-        {this.props.service} Lorem ipsum dolor sit amet, dicam ubique intellegat eos in, te laoreet probatus facilisis sed. Vim ex dolore omnesque. An simul similique vix, per ad menandri indoctum scriptorem. Vide sonet blandit mel ad, ea timeam patrioque mei. Qui at doming adipiscing.
+        {this.props.service}
       </Text>
     );
   }
@@ -17,7 +18,8 @@ export default class ImageProject extends React.Component {
     super(props);
     this.state = {
       hasCameraPermission: null,
-      image: "https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg"
+      image: "https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg",
+      AWSText: "AWS"
     };
   }
 
@@ -27,9 +29,11 @@ export default class ImageProject extends React.Component {
   }
 
   snap = async () => {
+    const options = { quality: 0.5, base64: true };
     if (this.camera) {
-      let photo = await this.camera.takePictureAsync();
-      this.setState({image: photo.uri})
+      let photo = await this.camera.takePictureAsync(options);
+      this.setState({image: photo.uri});
+      this.setState({AWSText: await(awsAnalysisAsync(photo.base64))});
     }
   };
 
@@ -65,7 +69,7 @@ export default class ImageProject extends React.Component {
 
           <View style = {{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
             <View style = {{backgroundColor: 'powderblue'}}>
-              <Service service = "AWS"  />
+              <Service service = {this.state.AWSText}/>
             </View>
             <View style = {{backgroundColor: 'skyblue'}}>
               <Service service = "Azure"/>
