@@ -19,7 +19,13 @@ export default class ImageProject extends React.Component {
     this.state = {
       hasCameraPermission: null,
       image: "https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg",
-      AWSText: "AWS"
+      AWSText: "AWS",
+      AWSEnabled: true,
+      AWSColor: "powderblue",
+      AzureEnabled: true,
+      AzureColor: "skyblue",
+      GoogleEnabled: true,
+      GoogleColor: "steelblue"
     };
   }
 
@@ -29,11 +35,13 @@ export default class ImageProject extends React.Component {
   }
 
   snap = async () => {
-    const options = { quality: 0.5, base64: true };
+    const options = { base64: true };
     if (this.camera) {
       let photo = await this.camera.takePictureAsync(options);
       this.setState({image: photo.uri});
-      this.setState({AWSText: await(awsAnalysisAsync(photo.base64))});
+      if(this.state.AWSEnabled) {
+        this.setState({AWSText: await(awsAnalysisAsync(photo.base64))});
+      }
     }
   };
 
@@ -45,8 +53,8 @@ export default class ImageProject extends React.Component {
       return <Text>No access to camera</Text>;
     } else {
       return (
-        <ScrollView style={styles.container}>
-          <Camera style={{flex: 4, height: 600}} type={this.state.type} ref={ref => { this.camera = ref; }} >
+        <View style={styles.container}>
+          <Camera style={{flex: 1}} type={this.state.type} ref={ref => { this.camera = ref; }} >
             <View
               style={{
                 backgroundColor: 'transparent',
@@ -58,29 +66,51 @@ export default class ImageProject extends React.Component {
                   alignSelf: 'flex-end',
                   alignItems: 'center',
                 }}
-                onPress={this.snap} >
+                onPress={this.snap}>
                 <Text
                   style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>
-                  {' '}Capture{' '}
+                  {' '}Detect{' '}
                 </Text>
               </TouchableOpacity>
             </View>
           </Camera>
 
-          <View style = {{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
-            <View style = {{backgroundColor: 'powderblue'}}>
+          <View style = {{flexDirection: 'column', justifyContent: 'space-between', paddingBottom: 10}}>
+            <TouchableOpacity style = {{backgroundColor: this.state.AWSColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
+              if(this.state.AWSEnabled == true) {
+                this.setState({AWSColor: "black"});
+              }
+              else {
+                this.setState({AWSColor: "powderblue"})
+              }
+              this.setState({AWSEnabled: !this.state.AWSEnabled});
+            }}>
               <Service service = {this.state.AWSText}/>
-            </View>
-            <View style = {{backgroundColor: 'skyblue'}}>
+            </TouchableOpacity>
+            <TouchableOpacity style = {{backgroundColor: this.state.AzureColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
+              this.setState({AzureEnabled: !this.state.AzureEnabled});
+              if(this.state.AzureEnabled == false) {
+                this.setState({AzureColor: "black"});
+              }
+              else {
+                this.setState({AzureColor: "skyblue"})
+              }
+            }}>
               <Service service = "Azure"/>
-            </View>
-            <View style = {{backgroundColor: 'steelblue', paddingBottom: 22}}>
+            </TouchableOpacity>
+            <View style = {{backgroundColor: this.state.GoogleColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
+              this.setState({GoogleEnabled: !this.state.GoogleEnabled});
+              if(this.state.GoogleEnabled == false) {
+                this.setState({GoogleColor: "black"});
+              }
+              else {
+                this.setState({GoogleColor: "steelblue"})
+              }
+            }}>
               <Service service = "Google Cloud" />
             </View>
           </View>
-
-          <Image source={{uri: this.state.image}} style={{width: 193, height: 110}}/>
-        </ScrollView>
+        </View>
       );
     }
   }
@@ -88,8 +118,7 @@ export default class ImageProject extends React.Component {
 
   const styles = StyleSheet.create({
     container: {
-      flex: 2,
-      paddingTop: 22,
-      paddingBottom: 22,
+      flex: 1,
+      paddingTop: 20,
     },
   });
