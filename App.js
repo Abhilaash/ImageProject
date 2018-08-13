@@ -2,6 +2,7 @@ import React from 'react';
 import {FlatList, Image, StyleSheet, Text, TouchableOpacity, ScrollView, View } from 'react-native';
 import { Camera, Permissions } from 'expo';
 import {awsAnalysisAsync} from './src/AWS'
+import {googleAnalysisAsync} from './src/Google'
 
 class Service extends React.Component {
   render() {
@@ -19,11 +20,13 @@ export default class ImageProject extends React.Component {
     this.state = {
       hasCameraPermission: null,
       image: "https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg",
-      AWSText: "AWS",
+      AWSText: "Amazon Web Services",
       AWSEnabled: true,
       AWSColor: "powderblue",
+      AzureText: "Azure",
       AzureEnabled: true,
       AzureColor: "skyblue",
+      GoogleText: "Google Cloud Platform",
       GoogleEnabled: true,
       GoogleColor: "steelblue"
     };
@@ -40,7 +43,11 @@ export default class ImageProject extends React.Component {
       let photo = await this.camera.takePictureAsync(options);
       this.setState({image: photo.uri});
       if(this.state.AWSEnabled) {
-        this.setState({AWSText: await(awsAnalysisAsync(photo.base64))});
+        this.setState({AWSText: await(awsAnalysisAsync(photo.base64))})
+      }
+
+      if(this.state.GoogleEnabled) {
+        this.setState({GoogleText: await(googleAnalysisAsync(photo.base64))});
       }
     }
   };
@@ -87,28 +94,30 @@ export default class ImageProject extends React.Component {
             }}>
               <Service service = {this.state.AWSText}/>
             </TouchableOpacity>
+
             <TouchableOpacity style = {{backgroundColor: this.state.AzureColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
-              this.setState({AzureEnabled: !this.state.AzureEnabled});
-              if(this.state.AzureEnabled == false) {
+              if(this.state.AzureEnabled == true) {
                 this.setState({AzureColor: "black"});
               }
               else {
                 this.setState({AzureColor: "skyblue"})
               }
+              this.setState({AzureEnabled: !this.state.AzureEnabled});
             }}>
-              <Service service = "Azure"/>
+              <Service service = {this.state.AzureText}/>
             </TouchableOpacity>
-            <View style = {{backgroundColor: this.state.GoogleColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
-              this.setState({GoogleEnabled: !this.state.GoogleEnabled});
-              if(this.state.GoogleEnabled == false) {
+
+            <TouchableOpacity style = {{backgroundColor: this.state.GoogleColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
+              if(this.state.GoogleEnabled == true) {
                 this.setState({GoogleColor: "black"});
               }
               else {
                 this.setState({GoogleColor: "steelblue"})
               }
+              this.setState({GoogleEnabled: !this.state.GoogleEnabled});
             }}>
-              <Service service = "Google Cloud" />
-            </View>
+              <Service service = {this.state.GoogleText} />
+            </TouchableOpacity>
           </View>
         </View>
       );

@@ -1,6 +1,6 @@
-async function awsAnalysisAsync(bytes) {
+async function googleAnalysisAsync(bytes) {
   try{
-    let response = await fetch('http://18.207.234.121:8080/api/getlabels_aws', {
+    let response = await fetch('http://18.207.234.121:8080/api/getlabels_goog', {
       method: 'POST',
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
@@ -15,4 +15,4 @@ async function awsAnalysisAsync(bytes) {
   }
 }
 
-export {awsAnalysisAsync};
+export {googleAnalysisAsync};
