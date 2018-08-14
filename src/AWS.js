@@ -1,6 +1,6 @@
 async function awsAnalysisAsync(bytes) {
   try{
-    let response = await fetch('http://uassafeflightdevtest-env-1.dbmkyk9uby.us-east-1.elasticbeanstalk.com/api/getlabels_aws', {
+    let response = await fetch('http://18.207.234.121:8080/api/getlabels_aws', {
       method: 'POST',
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({

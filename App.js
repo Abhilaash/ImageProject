@@ -116,7 +116,6 @@ export default class ImageProject extends React.Component {
                   <Text style={{backgroundColor: "steelblue"}}>
                     <Service service = {this.state.GoogleText} />
                   </Text>
-                  <ImageView source={image}/>
                 </TouchableOpacity>
               </View>
             </View>
@@ -166,9 +165,9 @@ export default class ImageProject extends React.Component {
               }
               this.setState({AzureEnabled: !this.state.AzureEnabled});
             }}>
-            <Text style={{textAlign: 'center'}}>
-              Azure
-            </Text>
+              <Text style={{textAlign: 'center'}}>
+                Azure
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style = {{backgroundColor: this.state.GoogleColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
@@ -180,9 +179,9 @@ export default class ImageProject extends React.Component {
               }
               this.setState({GoogleEnabled: !this.state.GoogleEnabled});
             }}>
-            <Text style={{textAlign: 'center'}}>
-              Google Cloud Platform
-            </Text>
+              <Text style={{textAlign: 'center'}}>
+                Google Cloud Platform
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
