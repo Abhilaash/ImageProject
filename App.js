@@ -19,7 +19,7 @@ export default class ImageProject extends React.Component {
     super(props);
     this.state = {
       hasCameraPermission: null,
-      image: "https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg",
+      image: "",
       AWSText: "",
       AWSEnabled: true,
       AWSColor: "powderblue",
@@ -116,6 +116,7 @@ export default class ImageProject extends React.Component {
                   <Text style={{backgroundColor: "steelblue"}}>
                     <Service service = {this.state.GoogleText} />
                   </Text>
+                  <Image source={image}/>
                 </TouchableOpacity>
               </View>
             </View>
