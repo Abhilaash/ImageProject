@@ -116,7 +116,7 @@ export default class ImageProject extends React.Component {
                   <Text style={{backgroundColor: "steelblue"}}>
                     <Service service = {this.state.GoogleText} />
                   </Text>
-                  <Image source={image}/>
+                  <ImageView source={image}/>
                 </TouchableOpacity>
               </View>
             </View>
