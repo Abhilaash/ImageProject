@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, Image, StyleSheet, Text, TouchableOpacity, ScrollView, View } from 'react-native';
+import {FlatList, Image, Modal, StyleSheet, Text, TouchableOpacity, ScrollView, View } from 'react-native';
 import { Camera, Permissions } from 'expo';
 import {awsAnalysisAsync} from './src/AWS'
 import {googleAnalysisAsync} from './src/Google'
@@ -7,7 +7,7 @@ import {googleAnalysisAsync} from './src/Google'
 class Service extends React.Component {
   render() {
     return (
-      <Text style={{textAlign: 'center'}}>
+      <Text style={{textAlign: 'center', fontSize: 15}}>
         {this.props.service}
       </Text>
     );
@@ -20,16 +20,21 @@ export default class ImageProject extends React.Component {
     this.state = {
       hasCameraPermission: null,
       image: "https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg",
-      AWSText: "Amazon Web Services",
+      AWSText: "",
       AWSEnabled: true,
       AWSColor: "powderblue",
-      AzureText: "Azure",
+      AzureText: "",
       AzureEnabled: true,
       AzureColor: "skyblue",
-      GoogleText: "Google Cloud Platform",
+      GoogleText: "",
       GoogleEnabled: true,
-      GoogleColor: "steelblue"
+      GoogleColor: "steelblue",
+      modalVisible: false,
     };
+  }
+
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
   }
 
   async componentWillMount() {
@@ -38,16 +43,40 @@ export default class ImageProject extends React.Component {
   }
 
   snap = async () => {
-    const options = { base64: true };
+    this.setModalVisible(!this.state.modalVisible);
+    const options = { quality: 0.5, base64: true };
     if (this.camera) {
       let photo = await this.camera.takePictureAsync(options);
       this.setState({image: photo.uri});
       if(this.state.AWSEnabled) {
-        this.setState({AWSText: await(awsAnalysisAsync(photo.base64))})
+        var text = await(awsAnalysisAsync(photo.base64));
+        text = text.substring(0, text.length - 1);
+        var separatedVars = text.split(";").map(detection => {
+          var label = detection.split('-');
+          return " " + label[0] + "-" + label[1].substring(0, 5) + "\n";
+        });
+        this.setState({AWSText: separatedVars});
+      }
+      else {
+        this.setState({AWSText: "Disabled"});
       }
 
       if(this.state.GoogleEnabled) {
-        this.setState({GoogleText: await(googleAnalysisAsync(photo.base64))});
+        var text = await(googleAnalysisAsync(photo.base64));
+        text = text.substring(0, text.length - 1);
+        var separatedVars = text.split(";").map(detection => {
+          var label = detection.split('-');
+          if(label.length > 1 && label[1].length > 4) {
+            return " " + label[0] + "-" + ((Number.parseFloat(label[1]) * 100) + "").substring(0, 5) + "\n";
+          }
+          else {
+            return " " + label + "\n";
+          }
+        });
+        this.setState({GoogleText: separatedVars});
+      }
+      else {
+        this.setState({GoogleText: "Disabled"});
       }
     }
   };
@@ -61,6 +90,36 @@ export default class ImageProject extends React.Component {
     } else {
       return (
         <View style={styles.container}>
+          <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            this.setModalVisible(!this.state.modalVisible);
+          }}>
+          <View style={{marginTop: 22}}>
+              <View>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setModalVisible(!this.state.modalVisible);
+                  }}>
+                  <Text style={{backgroundColor: "powderblue", fontSize: 20, textAlign: 'center'}}> AWS </Text>
+                  <Text style={{backgroundColor: "powderblue"}}>
+                    <Service service = {this.state.AWSText} />
+                  </Text>
+                  <Text style={{backgroundColor: "skyblue", fontSize: 20, textAlign: 'center'}}> Azure </Text>
+                  <Text style={{backgroundColor: "skyblue"}}>
+                    <Service service = {this.state.AzureText} />
+                  </Text>
+                  <Text style={{backgroundColor: "steelblue", fontSize: 20, textAlign: 'center'}}> Google Cloud Platform </Text>
+                  <Text style={{backgroundColor: "steelblue"}}>
+                    <Service service = {this.state.GoogleText} />
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
           <Camera style={{flex: 1}} type={this.state.type} ref={ref => { this.camera = ref; }} >
             <View
               style={{
@@ -92,7 +151,9 @@ export default class ImageProject extends React.Component {
               }
               this.setState({AWSEnabled: !this.state.AWSEnabled});
             }}>
-              <Service service = {this.state.AWSText}/>
+              <Text style={{textAlign: 'center'}}>
+                Amazon Web Services
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style = {{backgroundColor: this.state.AzureColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
@@ -104,7 +165,9 @@ export default class ImageProject extends React.Component {
               }
               this.setState({AzureEnabled: !this.state.AzureEnabled});
             }}>
-              <Service service = {this.state.AzureText}/>
+            <Text style={{textAlign: 'center'}}>
+              Azure
+            </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style = {{backgroundColor: this.state.GoogleColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
@@ -116,7 +179,9 @@ export default class ImageProject extends React.Component {
               }
               this.setState({GoogleEnabled: !this.state.GoogleEnabled});
             }}>
-              <Service service = {this.state.GoogleText} />
+            <Text style={{textAlign: 'center'}}>
+              Google Cloud Platform
+            </Text>
             </TouchableOpacity>
           </View>
         </View>
