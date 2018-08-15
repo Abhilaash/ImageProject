@@ -19,13 +19,13 @@ export default class ImageProject extends React.Component {
     super(props);
     this.state = {
       hasCameraPermission: null,
-      image: "",
+      image: "https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg",
       AWSText: "",
       AWSEnabled: true,
       AWSColor: "powderblue",
-      AzureText: "",
-      AzureEnabled: true,
-      AzureColor: "skyblue",
+      ClarifaiText: "",
+      ClarifaiEnabled: true,
+      ClarifaiColor: "skyblue",
       GoogleText: "",
       GoogleEnabled: true,
       GoogleColor: "steelblue",
@@ -78,6 +78,28 @@ export default class ImageProject extends React.Component {
       else {
         this.setState({GoogleText: "Disabled"});
       }
+
+      if(this.state.ClarifaiEnabled) {
+        var awsText = await(awsAnalysisAsync(photo.base64));
+        var googleText = await(googleAnalysisAsync(photo.base64));
+        text = awsText.substring(0, awsText.length - 1);
+        var awsseparatedVars = text.split(";").map(detection => {
+          var label = detection.split('-');
+          return " " + label[0] + "-" + label[1].substring(0, 5) + "\n";
+        });
+        text = googleText.substring(0, googleText.length - 1)
+        var googleseparatedVars = text.split(";").map(detection => {
+          var label = detection.split('-');
+          if(label.length > 1 && label[1].length > 4) {
+            return " " + label[0] + "-" + ((Number.parseFloat(label[1]) * 100) + "").substring(0, 5) + "\n";
+          }
+
+        });
+        this.setState({ClarifaiText: awsseparatedVars[0] + googleseparatedVars[0]});
+      }
+      else {
+        this.setState({ClarifaiText: "Disabled"});
+      }
     }
   };
 
@@ -108,14 +130,15 @@ export default class ImageProject extends React.Component {
                   <Text style={{backgroundColor: "powderblue"}}>
                     <Service service = {this.state.AWSText} />
                   </Text>
-                  <Text style={{backgroundColor: "skyblue", fontSize: 20, textAlign: 'center'}}> Azure </Text>
+                  <Text style={{backgroundColor: "skyblue", fontSize: 20, textAlign: 'center'}}> Clarifai </Text>
                   <Text style={{backgroundColor: "skyblue"}}>
-                    <Service service = {this.state.AzureText} />
+                    <Service service = {this.state.ClarifaiText} />
                   </Text>
                   <Text style={{backgroundColor: "steelblue", fontSize: 20, textAlign: 'center'}}> Google Cloud Platform </Text>
                   <Text style={{backgroundColor: "steelblue"}}>
                     <Service service = {this.state.GoogleText} />
                   </Text>
+                  <Image source={{uri: this.state.image}} style={{width: 193, height: 110}}/>
                 </TouchableOpacity>
               </View>
             </View>
@@ -156,17 +179,17 @@ export default class ImageProject extends React.Component {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style = {{backgroundColor: this.state.AzureColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
-              if(this.state.AzureEnabled == true) {
-                this.setState({AzureColor: "black"});
+            <TouchableOpacity style = {{backgroundColor: this.state.ClarifaiColor, paddingTop: 5, paddingBottom: 5}} onPress={() => {
+              if(this.state.ClarifaiEnabled == true) {
+                this.setState({ClarifaiColor: "black"});
               }
               else {
-                this.setState({AzureColor: "skyblue"})
+                this.setState({ClarifaiColor: "skyblue"})
               }
-              this.setState({AzureEnabled: !this.state.AzureEnabled});
+              this.setState({ClarifaiEnabled: !this.state.ClarifaiEnabled});
             }}>
               <Text style={{textAlign: 'center'}}>
-                Azure
+                Clarifai
               </Text>
             </TouchableOpacity>
 
